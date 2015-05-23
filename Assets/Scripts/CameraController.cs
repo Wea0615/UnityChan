@@ -134,10 +134,12 @@ namespace GameCameraController
 		{
 			Vector3 focusToPosition = this.transform.position - this.focus;
 
-			Vector3 post = focusToPosition * (1.0f + delta);
+			Vector3 post = focusToPosition * (1.0f - delta);
 
-			if (post.magnitude > 0.01)
+			if (post.magnitude > 0.01) 
+			{
 				this.transform.position = this.focus + post;
+			}
 
 			return;
 		}
