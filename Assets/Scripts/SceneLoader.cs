@@ -1,33 +1,59 @@
 ﻿using UnityEngine;
+using System;
 using System.Collections;
+using UnityEngine.UI;
+using System.Collections.Generic;
+
+public enum SceneType
+{
+	ActionShow = 0,
+	PoseShow,
+	Locomotion,
+}
 
 public class SceneLoader : MonoBehaviour {
 
-	void OnGUI()
+	public GameObject ButtonInstance;
+
+	private Dictionary<int , SceneType> typeMap_ = new Dictionary<int, SceneType>();
+	private Vector3 ButtonOffset = new Vector3 (0.0f, 30.0f, 0.0f);
+
+	private Dictionary<int , string> SceneName_ = new Dictionary<int, string>();
+
+	void Start()
 	{
-		GUI.Box(new Rect(10 , Screen.height - 100 ,100 ,90), "Change Scene");
-		if(GUI.Button( new Rect(20 , Screen.height - 70 ,80, 20), "Next"))
-			LoadNextScene();
-		if(GUI.Button(new Rect(20 ,  Screen.height - 40 ,80, 20), "Back"))
-			LoadPreScene();
+		SceneName_.Add (0, "動作展示");
+		SceneName_.Add (1, "姿態展示");
+		SceneName_.Add (2, "行動展示");
+
+		SetupButtons_();
 	}
 
-	void LoadPreScene()
+	void SetupButtons_()
 	{
-		int nextLevel = Application.loadedLevel + 1;
-		if( nextLevel <= 1)
-			nextLevel = Application.levelCount;
 
-		Application.LoadLevel(nextLevel);
+		for (int i=0 ;i < Enum.GetNames(typeof(SceneType)).Length ; i++)
+		{
+			GameObject button = GameObject.Instantiate(ButtonInstance) as GameObject;
+			button.name = Enum.GetName( typeof(SceneType) , i);
+			button.GetComponentInChildren<Text>().text = SceneName_[i];
+			
+			RectTransform buttonTrans = button.GetComponent<RectTransform>();
+			buttonTrans.anchorMin = new Vector2( 1.0f , 0.0f);
+			buttonTrans.anchorMax = new Vector2( 1.0f , 0.0f);
+			buttonTrans.SetParent(transform);
+			buttonTrans.anchoredPosition = new Vector3( -85.0f , 20.0f , 0.0f) + ButtonOffset * i;	
+
+			Button buttonUI = button.GetComponent<Button>();
+			typeMap_.Add( i , (SceneType)i );
+			SceneType type = typeMap_[i];
+			buttonUI.onClick.AddListener( () => LoadScene_(type) );
+		}
 	}
 
-	void LoadNextScene()
+	void LoadScene_(SceneType type)
 	{
-		int nextLevel = Application.loadedLevel + 1;
-		if( nextLevel >= Application.levelCount)
-			nextLevel = 1;
-
-		Application.LoadLevel(nextLevel);
-
+		Application.LoadLevel( (int)type );
 	}
+
 }
